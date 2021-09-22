@@ -1,0 +1,110 @@
+[
+  {
+    "key": "q1",
+    "q": "Topic bạn vừa tham gia seminar là gì?",
+    "choice": {
+      "A": "Javascript ES6",
+      "B": "React Hook",
+      "C": "WordPress Gutenberg",
+      "D": "REST API basic"
+    },
+    "a": ["A"]
+  },
+  {
+    "key": "q2",
+    "q": "Javascript là ngôn ngữ xử lý ở",
+    "choice": {
+      "A": "Client",
+      "B": "Server",
+      "C": "Cả A và B",
+      "D": "Không có dạng nào"
+    },
+    "a": ["C"]
+  },
+  {
+    "key": "q3",
+    "q": "Cú pháp \"Template literals\" nào sau đây là đúng?",
+    "choice": {
+      "A": "&#96;My name's &#35;{name}, 31 age.&#96;",
+      "B": "&#96;My name's &#64;{name}, 31 age.&#96;",
+      "C": "&#96;My name's &#36;{name}, 31 age.&#96;",
+      "D": "\"My name's\"+ name +\", 31 age.\""
+    },
+    "a": ["C"]
+  },
+  {
+    "key": "q4",
+    "q": "Object Property Shorthand là chuẩn Javascript nào?",
+    "choice": {
+      "A": "JavaScript ES6/ES2014",
+      "B": "JavaScript ES6/ES2015",
+      "C": "JavaScript ES5",
+      "D": "JavaScript ES4"
+    },
+    "a": ["B"]
+  },
+  {
+    "key": "q5",
+    "q": "Trong Javascript sự kiện OnUnload thực hiện khi nào?",
+    "choice": {
+      "A": "Khi bắt đầu tải trang",
+      "B": "Khi click chuột",
+      "C": "Khi rời hoặc tải lại trang",
+      "D": "Khi di chuyển chuột qua"
+    },
+    "a": ["C"]
+  },
+  {
+    "key": "q6",
+    "q": "Thực hiện kiểm tra nếu biến \"i\" không bằng 5, câu lệnh nào là đúng?",
+    "choice": {
+      "A": "if (i != 5)",
+      "B": "if i <> 5",
+      "C": "if i =! 5 then",
+      "D": "if (i <> 5)"
+    },
+    "a": ["A"]
+  },
+  {
+    "key": "q7",
+    "q": "JavaScript là ngôn ngữ kịch bản có che dấu được mã nguồn không?",
+    "choice": {
+      "A": "Dấu được",
+      "B": "Không dấu được",
+      "C": "Cả 2 câu trên đều sai"
+    },
+    "a": ["B"]
+  },
+  {
+    "key": "q8",
+    "q": "Làm cách nào để gọi một hàm \"myFunction\" trong Javascript?",
+    "choice": {
+      "A": "call myFunction()",
+      "B": "call function myFunction()",
+      "C": "myFunction()"
+    },
+    "a": ["C"]
+  },
+  {
+    "key": "q9",
+    "q": "Câu lệnh break kết hợp với vòng lặp để làm gì?",
+    "choice": {
+      "A": "Ngưng vòng lặp",
+      "B": "Không có ý nghĩa",
+      "C": "Nhảy đến một dòng lệnh khác",
+      "D": "Không thể kết hợp được"
+    },
+    "a": ["A"]
+  },
+  {
+    "key": "10",
+    "q": "Học Javascript để làm gì?",
+    "choice": {
+      "A": "Làm App Desktop",
+      "B": "Làm App Mobile",
+      "C": "Làm Web",
+      "D": "Cả 3 câu trên A, B và C"
+    },
+    "a": ["D"]
+  }
+]

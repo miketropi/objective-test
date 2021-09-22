@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Objective Test</title>
+  <style>
+    body, html {
+      font-family: Arial;
+      font-size: 18px;
+      line-height: 1.5em;
+    }
+
+    #page {
+
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 0;
+    }
+
+    button {
+      display: inline-block;
+      width: 160px;
+      color: white;
+      background: #4caf50;
+      padding: 10px 20px;
+      border: solid 1px #367438;
+      border-radius: 3px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      opacity: .8;
+    }
+
+    .container {
+      width: 960px;
+      max-width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      margin: 5vh auto;
+      justify-content: space-between;
+    }
+
+    #board_question {
+      width: 65%;
+    }
+
+    #user_list {
+      width: 25%;
+      margin: 0;
+      padding: 20px;
+      border: solid 1px #4caf50;
+      border-radius: 3px;
+    }
+
+    @media(max-width: 768px) {
+
+      #board_question {
+        width: 100%;
+        margin-bottom: 30px;
+      }
+
+      #user_list {
+        width: 100%;
+      }
+    }
+
+    #user_list li {
+      list-style: none;
+
+    }
+
+    li.user-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    li.is-ready .user-name {
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+    li.user-item .user-name {
+      width: 50%;
+    }
+
+    ._a {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    ._a-button {
+      width: 100%;
+      margin-bottom: 10px;
+      background: white;
+      color: black;
+    }
+
+    ._a-button._selected {
+      background: #4caf50;
+      color: white;
+    }
+
+    #score_board {
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    } 
+
+    #score_board li {
+      list-style: none;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+      list-style: none;
+      padding: 10px;
+    }
+
+    #score_board li:first-child {
+      background: #4caf50;
+      color: white;
+    }
+
+    .online-status {
+      font-size: 70px;
+      color: gray;
+    }
+
+    .online-status.is-online {
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+  <div id="page">
+    <div class="container">
+      <div id="board_question"></div>
+      <ul id="user_list"></ul>
+    </div>
+  </div>
+  <script src="./socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let LocalUser = {};
+    let LocalLevel = null;
+
+    const RandID = (prefix) => {
+      return prefix + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
+    }
+
+    socket.on('Users', Users => {
+      let _index = Users.findIndex(u => {
+        return u._id == LocalUser._id
+      })
+      LocalUser = Users[_index]
+      RenderUserList(Users);
+
+      if(LocalUser.ready) {
+        RenderBoardQuestions()
+      }
+    })
+
+    const CreateUser = () => {
+      let cacheId = window.localStorage.getItem('client_id')
+      if(!cacheId) {
+        cacheId = RandID('beplus_member_');
+        window.localStorage.setItem('client_id', cacheId);
+      }
+
+      const _id = cacheId;
+      const name = prompt(`Nhập tên:`)
+      
+      LocalUser = {_id, name}
+      socket.emit('ClientConnect', LocalUser);
+    }
+
+    CreateUser();
+
+    const RenderUserList = (Users = []) => {
+      const UserList = document.querySelector('ul#user_list');
+      const cacheId = window.localStorage.getItem('client_id');
+      let Li = [];
+      for (const User of Users) {
+        let name = cacheId == User._id ? `${User.name} (You)` : User.name;
+        Li.push(`<li class="user-item ${User.ready ? 'is-ready' : ''}" title="ID_${User._id}">
+            <span class="online-status ${User.online ? 'is-online' : ''}" title="${User.online ? 'online' : 'offline'}">·</span>
+            <span class="user-name">${name}</span>: 
+            <span>${User.point} point(s)</span></li>`);
+      }
+
+      UserList.innerHTML = Li.join('')
+    }
+
+    const RenderBoardQuestions = () => {
+      const wrapper = document.querySelector('#board_question');
+      let temp = `
+      <h2>Trả Lời Câu Hỏi Trắc Nghiệm (Beta)</h2>
+      ${ 
+        (!LocalUser?.ready 
+          ? `<button onclick="return ImReady(event)">Sẵn Sàng</button>` 
+          : `<p id="pre_start_mess">Đợi một chút...</p><div id="question"></div>`) 
+      }
+      `
+
+      wrapper.innerHTML = temp;
+    }
+
+    const ImReady = (e) => {
+      e.preventDefault;
+      socket.emit('ImReady', {
+        _id: LocalUser._id
+      })
+    }
+
+    RenderBoardQuestions();
+
+    socket.on('GameTimer', ({TimerLevel, Level, QuestionLength, question}) => {
+      document.querySelector('#pre_start_mess').innerHTML = `Đang trả lời câu ${Level + 1}/${QuestionLength}, còn ${TimerLevel}s để chọn câu trả lời và đợi những người khác:`
+      if(LocalLevel === Level) return;
+
+      LocalLevel = Level;
+      RenderQuestion(question, Level);
+    })
+
+    const RenderQuestion = ({key, q, choice}, Level) => {
+      const QuestionElem = document.querySelector('#question')
+      let temp = `
+        <h4 class="_q">Câu ${Level + 1}: ${q}</h4>
+        <div class="_a">
+          ${Object.keys(choice).map((value) => {
+            return `<button class="_a-button" data-a="${value}" onclick="return choiceAnwser(event, '${key}', '${value}')">${value} - ${choice[value]}</button>`
+          }).join('')}
+        </div>`
+
+      QuestionElem.innerHTML = temp;
+    }
+
+    const choiceAnwser = (event, QuestionKey, Value) => {
+      document.querySelectorAll('._a-button').forEach(btn => {
+        btn.classList.remove('_selected')
+      })
+      event.target.classList.add('_selected');
+
+      socket.emit('Anwser', {
+        UserID: LocalUser._id,
+        QuestionKey,
+        Value
+      })
+    }
+
+    socket.on('__PreStart', ({CountDown}) => {
+      document.querySelector('#pre_start_mess').innerHTML = `Sẽ bắt đầu trong ${CountDown}s...`
+    })
+
+    const RenderScoreboard = (Users, QuestionLength) => {
+      let temp = `<ol id="score_board">
+          ${ Users.map((u, index) => {
+            return `<li>${index + 1}. <strong>${u.name}</strong> trả lời đúng ${u.point} trong tổng số ${QuestionLength} câu</li>`
+          }).join('') }
+        </ol>`
+
+      document.querySelector('#pre_start_mess').innerHTML = temp;
+      document.querySelector('#question').innerHTML = '';
+    }
+
+    socket.on('EndGame', ({Users, QuestionLength}) => {
+      RenderScoreboard(Users, QuestionLength);
+    })
+  </script>
+</body>
+</html>
